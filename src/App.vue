@@ -145,7 +145,11 @@ const {
   playEat,
   playCraft,
   playBlizzard,
-  toggleMute
+  toggleMute,
+  initAudio,
+  updateAmbientByScene,
+  updateFireAmbientByHeat,
+  updateDangerAlert
 } = useAudio()
 
 const saveSlots = computed(() => getSaveSlots())
@@ -225,17 +229,22 @@ function handleRestart() {
 function showSaveManager() {
 }
 
-watch(isBlizzard, (newVal) => {
-  if (newVal) {
+watch([isDay, isBlizzard], ([newIsDay, newIsBlizzard]) => {
+  initAudio()
+  updateAmbientByScene(newIsDay, newIsBlizzard)
+  if (newIsBlizzard) {
     playBlizzard()
   }
-})
+}, { immediate: true })
 
 watch(isDanger, (newVal) => {
-  if (newVal && !muted.value) {
-    playDanger()
-  }
-})
+  updateDangerAlert(newVal)
+}, { immediate: true })
+
+watch(heat, (newHeat) => {
+  initAudio()
+  updateFireAmbientByHeat(newHeat)
+}, { immediate: true })
 </script>
 
 <style scoped>
